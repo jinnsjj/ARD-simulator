@@ -259,3 +259,7 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+# User properties
+!fftw-3.3.5-dll/x64
+!SDL2-2.0.9/lib/x64
