@@ -3,6 +3,12 @@
 
 class PmlPartition : public Partition
 {
+	std::shared_ptr<Partition> neighbor_part_;
+
+	double R_{0.00001};
+	double zeta_;
+	double thickness_;
+
 	double* p_old_{ nullptr };
 	double* p_{ nullptr };
 	double* p_new_{ nullptr };
@@ -15,10 +21,27 @@ class PmlPartition : public Partition
 	double* phi_z_new_;
 	double* force_;
 	
+	// PML damping values
+	double kxMin_{ 0.1 };
+	double kxMax_{ 0.1 };
+	double kyMin_{ 0.1 };
+	double kyMax_{ 0.1 };
+	double kzMin_{ 0.1 };
+	double kzMax_{ 0.1 };
+
 	int GetIndex(int x, int y, int z);
 
 public:
-	PmlPartition(int xs, int ys, int zs, int w, int h, int d);
+	enum PmlType {
+		P_LEFT,
+		P_RIGHT,
+		P_TOP,
+		P_BOTTOM,
+		P_FRONT,
+		P_BACK
+	}type_;
+
+	PmlPartition(std::shared_ptr<Partition> neighbor_part, PmlType type, int xs, int ys, int zs, int w, int h, int d);
 	~PmlPartition();
 
 	virtual void Update();

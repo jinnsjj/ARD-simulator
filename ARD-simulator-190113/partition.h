@@ -17,10 +17,11 @@ protected:
 	int y_start_, y_end_;
 	int z_start_, z_end_;
 	int width_, height_, depth_;
-	double absorption_{ 0.999 };
+	double absorption_{ 1.0 };
 	struct Info
 	{
 		int id;
+		std::string type;
 		int num_sources{ 0 };
 		int num_boundaries{ 0 };
 	} info_;
@@ -33,7 +34,11 @@ protected:
 	std::vector<std::vector<int>> front_free_borders_;
 	std::vector<std::vector<int>> back_free_borders_;
 
-	bool should_render{ true };
+	bool include_self_terms_{ true };
+	bool should_render_{ true };
+	bool is_x_pml_{ false };
+	bool is_y_pml_{ false };
+	bool is_z_pml_{ false };
 	
 public:
 
@@ -45,6 +50,7 @@ public:
 	virtual double* get_pressure_field() = 0;
 	std::vector<double> get_xy_plane(int z);
 	std::vector<double> get_yz_plane(int x);
+	std::vector<double> get_xz_plane(int y);
 	virtual double get_pressure(int x, int y, int z) = 0;
 	virtual void set_force(int x, int y, int z, double f) = 0;
 	virtual std::vector<double> get_xy_forcing_plane(int z);
@@ -60,5 +66,6 @@ public:
 	//friend class SoundSource;
 	friend class Simulation;
 	friend class Tools;
+	friend class PmlPartition;
 };
 

@@ -14,8 +14,6 @@ class Simulation
 	std::vector<std::shared_ptr<Boundary>> boundaries_;
 	std::vector<std::shared_ptr<SoundSource>> sources_;
 
-	int model_map_[10][10] = {0};
-
 	int x_start_, x_end_;
 	int y_start_, y_end_;
 	int z_start_, z_end_;
@@ -33,6 +31,7 @@ class Simulation
 	{
 		size_t num_partitions{ 0 };
 		size_t num_dct_partitions{ 0 };
+		size_t num_pml_partitions{ 0 };
 		size_t num_sources{ 0 };
 		size_t num_boundaries{ 0 };
 		std::vector<std::vector<char>> model_map;
@@ -42,6 +41,11 @@ public:
 	static double dh_;
 	static double dt_;
 	static double c0_;
+	static int n_pml_layers_;
+
+	int look_from_{ 0 };	// 0: visualize xy plane
+							// 1: visualize yz plane
+							// 2: 
 
 	Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std::vector<std::shared_ptr<SoundSource>> &sources);
 	~Simulation();

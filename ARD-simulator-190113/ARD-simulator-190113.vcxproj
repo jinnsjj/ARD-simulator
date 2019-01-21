@@ -91,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)SDL2-2.0.9\include\;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -158,10 +159,12 @@
     <ClInclude Include="tools.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="hall-sources.txt" />
+    <Text Include="hall.txt" />
     <Text Include="partitions-info-minus.txt" />
-    <Text Include="partitions-info-x-boundary.txt" />
+    <Text Include="partitions-info-x.txt" />
     <Text Include="partitions-info-x-y.txt" />
-    <Text Include="partitions-info-y-boundary.txt" />
+    <Text Include="partitions-info-y.txt" />
     <Text Include="partitions-info.txt" />
     <Text Include="sources-info-minus.txt" />
   </ItemGroup>

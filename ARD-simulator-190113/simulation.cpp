@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include "partition.h"
+#include "pml_partition.h"
 #include "boundary.h"
 #include "tools.h"
 #include "sound_source.h"
@@ -26,10 +27,11 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 				boundaries_.push_back(boundary);
 				part_a->AddBoundary(boundary);
 				part_b->AddBoundary(boundary);
-				//Tools::Visualize2dVector(part_a->bottom_free_borders_);
 				//Tools::Visualize2dVector(part_b->top_free_borders_);
 			}
 		}
+		//Tools::Visualize2dVector(part_a->bottom_free_borders_);
+
 	}
 
 	// Add sources to corresponding partition
@@ -45,6 +47,226 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 			}
 		}
 	}
+
+	info_.num_dct_partitions = partitions_.size();
+	info_.num_boundaries = boundaries_.size();
+	info_.num_sources = sources_.size();
+
+
+	// Find adn create PML partitions.
+	for (int cnt = 0; cnt < info_.num_dct_partitions; cnt++)
+	{
+		auto partition = partitions_[cnt];
+		int start;
+		int end;
+		bool started;
+
+		// Find left PML.
+		start = 0; end = 0; started = false;
+		for (int i = 0; i < partition->height_; i++)
+		{
+			if (started)
+			{
+				end++;
+				if (partition->left_free_borders_[0][i] && i != partition->height_ - 1)
+				{
+					continue;
+				}
+				else if (start != end)
+				{
+					if (i != partition->height_ - 1) end--;
+					auto pml = std::make_shared<PmlPartition>(
+						partition,
+						PmlPartition::P_LEFT,
+						partition->x_start_ - Simulation::n_pml_layers_,
+						partition->y_start_ + start,
+						partition->z_start_,
+						Simulation::n_pml_layers_,
+						end - start + 1,
+						partition->depth_);
+					partitions_.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
+					boundaries_.push_back(boundary);
+					info_.num_pml_partitions++;
+					started = false;
+				}
+			}
+			else if (partition->left_free_borders_[0][i])
+			{
+				start = i;
+				end = i;
+				started = true;
+			}
+		}
+
+		// Find right PML.
+		start = 0; end = 0; started = false;
+		for (int i = 0; i < partition->height_; i++)
+		{
+			if (started)
+			{
+				end++;
+				if (partition->right_free_borders_[0][i] && i != partition->height_ - 1)
+				{
+					continue;
+				}
+				else if (start != end)
+				{
+					if (i != partition->height_ - 1) end--;
+					auto pml = std::make_shared<PmlPartition>(
+						partition,
+						PmlPartition::P_RIGHT,
+						partition->x_end_,
+						partition->y_start_ + start,
+						partition->z_start_,
+						Simulation::n_pml_layers_,
+						end - start + 1,
+						partition->depth_);
+					partitions_.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
+					boundaries_.push_back(boundary);
+					info_.num_pml_partitions++;
+					started = false;
+				}
+			}
+			else if (partition->right_free_borders_[0][i])
+			{
+				start = i;
+				end = i;
+				started = true;
+			}
+		}
+
+		// Find top PML.
+		start = 0; end = 0; started = false;
+		for (int i = 0; i < partition->width_; i++)
+		{
+			if (started)
+			{
+				end++;
+				if (partition->top_free_borders_[0][i] && i != partition->width_ - 1)
+				{
+					continue;
+				}
+				else if (start != end)
+				{
+					if (i != partition->width_ - 1) end--;
+					auto pml = std::make_shared<PmlPartition>(
+						partition,
+						PmlPartition::P_TOP,
+						partition->x_start_ + start,
+						partition->y_start_ - Simulation::n_pml_layers_,
+						partition->z_start_,
+						end - start + 1,
+						Simulation::n_pml_layers_,
+						partition->depth_);
+					partitions_.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
+					boundaries_.push_back(boundary);
+					info_.num_pml_partitions++;
+					started = false;
+				}
+			}
+			else if (partition->top_free_borders_[0][i])
+			{
+				start = i;
+				end = i;
+				started = true;
+			}
+		}
+
+		// Find bottom PML.
+		start = 0; end = 0; started = false;
+		for (int i = 0; i < partition->width_; i++)
+		{
+			if (started)
+			{
+				end++;
+				if (partition->bottom_free_borders_[0][i] && i != partition->width_ - 1)
+				{
+					continue;
+				}
+				else if (start != end)
+				{
+					if (i != partition->width_ - 1) end--;
+					auto pml = std::make_shared<PmlPartition>(
+						partition,
+						PmlPartition::P_BOTTOM,
+						partition->x_start_ + start,
+						partition->y_end_,
+						partition->z_start_,
+						end - start + 1,
+						Simulation::n_pml_layers_,
+						partition->depth_);
+					partitions_.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
+					boundaries_.push_back(boundary);
+					info_.num_pml_partitions++;
+					started = false;
+				}
+			}
+			else if (partition->bottom_free_borders_[0][i])
+			{
+				start = i;
+				end = i;
+				started = true;
+			}
+		}
+
+		// Add front PML.
+		{
+			auto pml = std::make_shared<PmlPartition>(
+				partition,
+				PmlPartition::P_FRONT,
+				partition->x_start_,
+				partition->y_start_,
+				partition->z_start_ - Simulation::n_pml_layers_,
+				partition->width_,
+				partition->height_,
+				Simulation::n_pml_layers_);
+			partitions_.push_back(pml);
+			boundaries_.push_back(std::make_shared<Boundary>(
+				Boundary::Z_BOUNDARY,
+				partition->absorption_,
+				pml,
+				partition,
+				partition->x_start_,
+				partition->x_end_,
+				partition->y_start_,
+				partition->y_end_,
+				partition->z_start_ - 3,
+				partition->z_start_ + 3));
+			info_.num_pml_partitions++;
+		}
+
+
+		// Add back PML.
+		{
+			auto pml = std::make_shared<PmlPartition>(
+				partition,
+				PmlPartition::P_BACK,
+				partition->x_start_,
+				partition->y_start_,
+				partition->z_end_,
+				partition->width_,
+				partition->height_,
+				Simulation::n_pml_layers_);
+			partitions_.push_back(pml);
+			boundaries_.push_back(std::make_shared<Boundary>(
+				Boundary::Z_BOUNDARY,
+				partition->absorption_,
+				pml,
+				partition,
+				partition->x_start_,
+				partition->x_end_,
+				partition->y_start_,
+				partition->y_end_,
+				partition->z_end_ - 3,
+				partition->z_end_ + 3));
+			info_.num_pml_partitions++;
+		}
+	}
+
 
 
 	/*------------- partitions includes pml partition --------------------------*/
@@ -67,9 +289,7 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 	size_y_ = y_end_ - y_start_;
 	size_z_ = z_end_ - z_start_;
 
-	info_.num_dct_partitions = partitions_.size();
-	info_.num_boundaries = boundaries_.size();
-	info_.num_sources = sources_.size();
+
 
 	pixels_.assign(size_x_*size_y_, 0);
 	ready_ = true;
@@ -82,52 +302,110 @@ Simulation::~Simulation()
 void Simulation::Update()
 {
 	int time_step = time_step_++;
-	std::cout << "#" << std::setw(5) << time_step << " : ";
-	std::cout << std::to_string(sources_[0]->SampleValue(time_step)) << " ";
+	//std::cout << "#" << std::setw(5) << time_step << " : ";
+	//std::cout << std::to_string(sources_[0]->SampleValue(time_step)) << " ";
 	for (auto partition : partitions_)
 	{
 		partition->ComputeSourceForcingTerms(time_step);
-		//std::cout<<std::to_string(partition->get_pressure(0,4,2))
 		partition->Update();
-		std::cout << "update partition " << partition->info_.id << " ";
+		//std::cout << "update partition " << partition->info_.id << " ";
 	}
 	for (auto boundary : boundaries_)
 	{
 		boundary->ComputeForcingTerms();
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
 	{	// Visualization
 		SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
-		for (auto partition : partitions_)
+		if (look_from_ == 0)	//xy
 		{
-			if (!partition->should_render) continue;
-			int x_offset = partition->x_start_ - x_start_;
-			int y_offset = partition->y_start_ - y_start_;
-			//std::vector<double> partition_xy = partition->get_xy_forcing_plane(2 / Simulation::dh_);
-			std::vector<double> partition_xy = partition->get_xy_plane(2 / Simulation::dh_);
-			for (int i = 0; i < partition->height_; i++) {
-				for (int j = 0; j < partition->width_; j++) {
-					double pressure = partition_xy[i*partition->width_ + j];
-					double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*1e9)) + 0.5;
-					int r, g, b;
-					if (norm >= 0.5)
-					{
-						r = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
-						g = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
-						b = 255;
+			int pixels_z = sources_[0]->z();
+			for (auto partition : partitions_)
+			{
+				//if (!partition->should_render_) continue;
+				//if (partition->is_z_pml_) continue;
+				if (partition->z_start_ > pixels_z || partition->z_end_ < pixels_z)
+				{
+					continue;
+				}
+				int x_offset = partition->x_start_ - x_start_;
+				int y_offset = partition->y_start_ - y_start_;
+				std::vector<double> partition_xy;
+				partition_xy = partition->get_xy_plane(pixels_z);
+				for (int i = 0; i < partition->height_; i++) {
+					for (int j = 0; j < partition->width_; j++) {
+						double pressure = partition_xy[i*partition->width_ + j];
+						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*3e9)) + 0.5;
+						int r, g, b;
+						if (norm >= 0.5)
+						{
+							r = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
+							g = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
+							b = 255;
+						}
+						else {
+							r = 255;
+							g = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
+							b = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
+						}
+						if (partition->should_render_)
+						{
+							pixels_[(y_offset + i)*size_x_ + (x_offset + j)] = SDL_MapRGBA(fmt, 255, r, g, b);
+						}
+						else
+						{
+							pixels_[(y_offset + i)*size_x_ + (x_offset + j)] = SDL_MapRGBA(fmt, 255, 0.5*r, 0.5*g, 0.5*b);
+						}
 					}
-					else {
-						r = 255;
-						g = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
-						b = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
+				}
+			}
+		}
+		else if (look_from_ == 1)	//yz
+		{
+			int pixels_x = sources_[0]->x();
+			for (auto partition : partitions_)
+			{
+				//if (!partition->should_render_) continue;
+				//if (partition->is_x_pml_) continue;
+				if (partition->x_start_ > pixels_x || partition->x_end_ < pixels_x)
+				{
+					continue;
+				}
+				int y_offset = partition->y_start_ - y_start_;
+				int z_offset = partition->z_start_ - z_start_;
+				std::vector<double> partition_yz;
+				partition_yz = partition->get_yz_plane(pixels_x);
+
+				for (int i = 0; i < partition->depth_; i++) {
+					for (int j = 0; j < partition->height_; j++) {
+						double pressure = partition_yz[i*partition->height_ + j];
+						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*3e9)) + 0.5;
+						int r, g, b;
+						if (norm >= 0.5)
+						{
+							r = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
+							g = static_cast<int> (255 - round(255.0*2.0*(norm - 0.5)));
+							b = 255;
+						}
+						else {
+							r = 255;
+							g = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
+							b = static_cast<int> (255 - round(255.0*(1.0 - 2.0*norm)));
+						}
+						if (partition->should_render_)
+						{
+							pixels_[(z_offset + i)*size_y_ + (y_offset + j)] = SDL_MapRGBA(fmt, 255, r, g, b);
+						}
+						else
+						{
+							pixels_[(z_offset + i)*size_y_ + (y_offset + j)] = SDL_MapRGBA(fmt, 255, 0.5*r, 0.5*g, 0.5*b);
+						}
 					}
-					pixels_[(y_offset + i)*size_x_ + (x_offset + j)] = SDL_MapRGBA(fmt, 255, r, g, b);
 				}
 			}
 		}
 	}
-
 }
 
 void Simulation::Info()
@@ -141,6 +419,7 @@ void Simulation::Info()
 		<< "(m), dt = " << std::to_string(Simulation::dt_)
 		<< "(s), c0 = " << std::to_string(Simulation::c0_) << "(m/s)" << std::endl;
 	std::cout << "Number of dct_partitions: " << info_.num_dct_partitions << std::endl;
+	std::cout << "Number of pml_partitions: " << info_.num_pml_partitions << std::endl;
 	std::cout << "Number of boundaries: " << info_.num_boundaries << std::endl;
 	std::cout << "Number of sources: " << info_.num_sources << std::endl;
 

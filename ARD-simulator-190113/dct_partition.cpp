@@ -6,6 +6,9 @@
 DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d)
 	: Partition(xs, ys, zs, w, h, d), pressure_(w, h, d), force_(w, h, d)
 {
+	should_render_ = true;
+	info_.type = "DCT";
+
 	prev_modes_ = (double*)calloc(width_*height_*depth_, sizeof(double));
 	next_modes_ = (double*)calloc(width_*height_*depth_, sizeof(double));
 	cwt_ = (double*)calloc(width_*height_*depth_, sizeof(double));
@@ -49,7 +52,7 @@ void DctPartition::Update()
 			for (int k = 0; k < width_; k++)
 			{
 				int idx = i * height_ * width_ + j * width_ + k;
-				next_modes_[idx] = absorption_ * (2.0 * pressure_.modes_[idx] * cwt_[idx] - prev_modes_[idx] + (2.0 * force_.modes_[idx] / w2_[idx]) * (1.0 - cwt_[idx]));
+				next_modes_[idx] = 1 * (2.0 * pressure_.modes_[idx] * cwt_[idx] - prev_modes_[idx] + (2.0 * force_.modes_[idx] / w2_[idx]) * (1.0 - cwt_[idx]));
 			}
 		}
 	}

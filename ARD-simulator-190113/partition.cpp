@@ -77,6 +77,17 @@ std::vector<double> Partition::get_yz_plane(int x)
 	return yz_plane;
 }
 
+std::vector<double> Partition::get_xz_plane(int y)
+{
+	std::vector<double> xz_plane;
+	for (int i = 0; i < depth_; i++) {
+		for (int j = 0; j < width_; j++) {
+			xz_plane.push_back(get_pressure(j, y, i));
+		}
+	}
+	return xz_plane;
+}
+
 std::vector<double> Partition::get_xy_forcing_plane(int z)
 {
 	return std::vector<double>();
@@ -159,7 +170,7 @@ std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string 
 
 void Partition::Info()
 {
-	std::cout << "Partition "<< info_.id <<": "
+	std::cout << info_.type << " Partition "<< info_.id <<": "
 		<< x_start_ << "," << y_start_ << "," << z_start_ << "->"
 		<< x_end_ << "," << y_end_ << "," << z_end_ << std::endl;
 	std::cout << "    -> " << std::to_string(info_.num_sources) << " sources; "

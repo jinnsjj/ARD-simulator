@@ -21,12 +21,12 @@ Boundary::~Boundary()
 void Boundary::ComputeForcingTerms()
 {
 	double coefs[6][6] = {
-		{  0,   0,   -2,    2,   0,  0 },
-		{  0,  -2,   27,  -27,   2,  0 },
-		{ -2,  27, -270,  270, -27,  2 },
-		{  2, -27,  270, -270,  27, -2 },
-		{  0,   2,  -27,   27,  -2,  0 },
-		{  0,   0,    2,   -2,   0,  0 } };
+		{  0.0,   0.0,   -2.0,    2.0,   0.0,  0.0 },
+		{  0.0,  -2.0,   27.0,  -27.0,   2.0,  0.0 },
+		{ -2.0,  27.0, -270.0,  270.0, -27.0,  2.0 },
+		{  2.0, -27.0,  270.0, -270.0,  27.0, -2.0 },
+		{  0.0,   2.0,  -27.0,   27.0,  -2.0,  0.0 },
+		{  0.0,   0.0,    2.0,   -2.0,   0.0,  0.0 } };
 	if (type_ == X_BOUNDARY)
 	{
 		bool is_a_left = (x_start_ <= a_->x_end_&&x_end_ >= a_->x_end_);
@@ -58,14 +58,16 @@ void Boundary::ComputeForcingTerms()
 					}
 					if (m < 0)
 					{
-						sip = sip1 + sip2;
+						//sip = sip1 + sip2;
+						sip = left->include_self_terms_ ? (sip1 + sip2) : sip2;
 						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
-						left->set_force(left_x, left_y, left_z, fi);
+						left->set_force(left_x, left_y, left_z, absorption_*fi);
 					}
 					else {
-						sip = sip1 + sip2;
+						//sip = sip1 + sip2;
+						sip = right->include_self_terms_ ? (sip1 + sip2) : sip1;
 						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
-						right->set_force(right_x, right_y, right_z, fi);
+						right->set_force(right_x, right_y, right_z, absorption_*fi);
 					}
 				}
 
@@ -103,21 +105,124 @@ void Boundary::ComputeForcingTerms()
 					}
 					if (m < 0)
 					{
-						sip = sip1 + sip2;
+						//sip = sip1 + sip2;
+						sip = top->include_self_terms_ ? (sip1 + sip2) : sip2;
 						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
-						top->set_force(top_x, top_y, top_z, fi);
+						top->set_force(top_x, top_y, top_z, absorption_*fi);
 					}
 					else {
-						sip = sip1 + sip2;
+						//sip = sip1 + sip2;
+						sip = bottom->include_self_terms_ ? (sip1 + sip2) : sip1;
 						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
-						bottom->set_force(bottom_x, bottom_y, bottom_z, fi);
+						bottom->set_force(bottom_x, bottom_y, bottom_z, absorption_*fi);
 					}
 				}
 
 			}
 		}
-
 	}
+	else if (type_ = Z_BOUNDARY)
+	{
+		bool is_a_front = (z_start_ <= a_->z_end_ && z_end_ >= a_->z_end_);
+		auto front = is_a_front ? a_ : b_;
+		auto back = is_a_front ? b_ : a_;
+		for (int i = x_start_; i < x_end_; i++)
+		{
+			for (int j = y_start_; j < y_end_; j++)
+			{
+				int front_x = i - front->x_start_;
+				int back_x = i - back->x_start_;
+				int front_y = j - front->y_start_;
+				int back_y = j - back->y_start_;
+				for (int m = -3; m < 3; m++)
+				{
+					int front_z = front->depth_ + m;
+					int back_z = m;
+					double sip = 0.0;
+					double sip1 = 0.0;
+					double sip2 = 0.0;
+					double fi = 0.0;
+					for (int n = 0; n < 3; n++)
+					{
+						sip1 += coefs[m + 3][n] * front->get_pressure(front_x, front_y, front->depth_ - 3 + n);
+					}
+					for (int n = 3; n < 6; n++)
+					{
+						sip2 += coefs[m + 3][n] * back->get_pressure(back_x, back_y, n - 3);
+					}
+					if (m < 0)
+					{
+						//sip = sip1 + sip2;
+						sip = front->include_self_terms_ ? (sip1 + sip2) : sip2;
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						front->set_force(front_x, front_y, front_z, absorption_*fi);
+					}
+					else {
+						//sip = sip1 + sip2;
+						sip = back->include_self_terms_ ? (sip1 + sip2) : sip1;
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						back->set_force(back_x, back_y, back_z, absorption_*fi);
+					}
+				}
+
+			}
+		}
+	}
+	/* Fucking bug killed one afternoon */
+	//{
+	//	bool is_a_front = (z_start_ <= a_->z_end_ && z_end_ >= a_->z_end_);
+	//	auto front = is_a_front ? a_ : b_;
+	//	auto back = is_a_front ? b_ : a_;
+	//	for (int i = x_start_; i < x_end_; i++)
+	//	{
+	//		for (int j = y_start_; j < y_end_; j++)
+	//		{
+	//			int front_x = i - front->x_start_;
+	//			int back_x = i - back->x_start_;
+	//			int front_y = j - front->y_start_;
+	//			int back_y = j - back->y_start_;
+	//			for (int m = -3; m < 3; m++)
+	//			{
+	//				int front_z = front->depth_ + m;
+	//				int back_z = m;
+	//				double sip = 0.0;
+	//				double sip1 = 0.0;
+	//				double sip2 = 0.0;
+	//				double fi = 0.0;
+	//				for (int n = 0; n < 3; n++)
+	//				{
+	//					sip1 += coefs[m + 3][n] * front->get_pressure(front_x, front_y, front->depth_ - 3 + n);
+	//					if (i == 30 && j == 30)
+	//					{
+	//						std::cout << front->depth_ - 3 + n << " ";
+	//					}
+	//				}
+	//				if (i == 30 && j == 30)
+	//				{
+	//					std::cout << std::endl;
+
+	//				}
+	//				for (int n = 3; n < 6; n++)
+	//				{
+	//					sip2 += coefs[m + 3][n] = back->get_pressure(back_x, back_y, n - 3);
+	//				}
+	//				if (m < 0)
+	//				{
+	//					//sip = sip1 + sip2;
+	//					sip = front->include_self_terms_ ? (sip1 + sip2) : sip2;
+	//					fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+	//					front->set_force(front_x, front_y, front_z, absorption_*fi);
+	//				}
+	//				else {
+	//					//sip = sip1 + sip2;
+	//					sip = back->include_self_terms_ ? (sip1 + sip2) : sip1;
+	//					fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+	//					back->set_force(back_x, back_y, back_z, absorption_*fi);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 //void Boundary::ComputeForcingTerms()	// Micheal Oliver edition.
@@ -187,7 +292,7 @@ void Boundary::ComputeForcingTerms()
 //	}
 //}
 
-std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b)
+std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b, double absorp)
 {
 	int xa_min = a->x_start_;
 	int xa_max = xa_min + a->width_;
@@ -217,7 +322,7 @@ std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, s
 		int y_start = ya_min + std::max(0, yb_min - ya_min);
 		int y_end = y_start + y_overlapped;
 
-		return std::make_shared<Boundary>(X_BOUNDARY, 1.0, a, b, x_start, x_end, y_start, y_end, z_start, z_end);
+		return std::make_shared<Boundary>(X_BOUNDARY, absorp, a, b, x_start, x_end, y_start, y_end, z_start, z_end);
 	}
 	else if (y_overlapped == 0 && x_overlapped > 0)
 	{
@@ -229,7 +334,7 @@ std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, s
 		int y_start = (is_bottom_boundary ? ya_max - 3 : yb_max - 3);
 		int y_end = y_start + 6;
 
-		return std::make_shared<Boundary>(Y_BOUNDARY, 1.0, a, b, x_start, x_end, y_start, y_end, z_start, z_end);
+		return std::make_shared<Boundary>(Y_BOUNDARY, absorp, a, b, x_start, x_end, y_start, y_end, z_start, z_end);
 	}
 	return nullptr;
 }

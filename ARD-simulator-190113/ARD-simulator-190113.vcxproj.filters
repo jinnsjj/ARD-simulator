@@ -85,13 +85,19 @@
     <Text Include="sources-info-minus.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="partitions-info-x-boundary.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="partitions-info-y-boundary.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="partitions-info-x-y.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="partitions-info-x.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="partitions-info-y.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="hall.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="hall-sources.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

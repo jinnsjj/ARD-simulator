@@ -38,7 +38,7 @@ public:
 
 	void ComputeForcingTerms();
 
-	static std::shared_ptr<Boundary> FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b);
+	static std::shared_ptr<Boundary> FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b, double sbsorp = 1.0);
 	void Info();
 
 	friend class Partition;
