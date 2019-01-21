@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
+#include <omp.h>
 
 
 Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std::vector<std::shared_ptr<SoundSource>> &sources)
@@ -304,19 +305,23 @@ void Simulation::Update()
 	int time_step = time_step_++;
 	//std::cout << "#" << std::setw(5) << time_step << " : ";
 	//std::cout << std::to_string(sources_[0]->SampleValue(time_step)) << " ";
-	for (auto partition : partitions_)
+
+#pragma omp parallel for
+	for (int i = 0; i < partitions_.size(); i++)
 	{
-		partition->ComputeSourceForcingTerms(time_step);
-		partition->Update();
+		partitions_[i]->ComputeSourceForcingTerms(time_step);
+		partitions_[i]->Update();
 		//std::cout << "update partition " << partition->info_.id << " ";
 	}
-	for (auto boundary : boundaries_)
+#pragma omp parallel for
+	for (int i = 0; i < boundaries_.size(); i++)
 	{
-		boundary->ComputeForcingTerms();
+		boundaries_[i]->ComputeForcingTerms();
 	}
 	//std::cout << std::endl;
 
-	{	// Visualization
+	// Visualization
+	{	
 		SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
 		if (look_from_ == 0)	//xy
 		{

@@ -1,5 +1,6 @@
 #include "pml_partition.h"
 #include "simulation.h"
+#include <omp.h>
 
 
 int PmlPartition::GetIndex(int x, int y, int z)
@@ -86,7 +87,7 @@ void PmlPartition::Update()
 	auto c0 = Simulation::c0_;
 	auto zeta = zeta_;
 
-
+#pragma omp parallel for
 	for (int k = 0; k < depth; k++)
 	{
 		double zetax = 0.0;
@@ -103,7 +104,7 @@ void PmlPartition::Update()
 		default:
 			break;
 		}
-
+#pragma omp parallel for
 		for (int j = 0; j < height; j++)
 		{
 			switch (type)
@@ -117,7 +118,7 @@ void PmlPartition::Update()
 			default:
 				break;
 			}
-
+#pragma omp parallel for
 			for (int i = 0; i < width; i++)
 			{
 				switch (type)

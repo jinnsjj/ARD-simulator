@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <SDL.h>
+#include <omp.h>
 #undef main		// https://stackoverflow.com/questions/6847360
 
 #include "simulation.h"
@@ -12,11 +13,11 @@
 
 using namespace std;
 
-//double Simulation::dh_ = 0.05;
-//double Simulation::dt_ = 0.5e-4;
+double Simulation::dh_ = 0.05;
+double Simulation::dt_ = 0.5e-4;
 
-double Simulation::dh_ = 0.1;
-double Simulation::dt_ = 1e-4;
+//double Simulation::dh_ = 0.1;
+//double Simulation::dt_ = 1e-4;
 
 //double Simulation::dh_ = 0.5;
 //double Simulation::dt_ = 6.25e-4;
@@ -62,7 +63,10 @@ int main()
 				break;
 			}
 		}
+		double start = omp_get_wtime();
 		simulation->Update();
+		double end = omp_get_wtime();
+		std::cout << end - start << std::endl;
 
 		if (simulation->ready())
 		{

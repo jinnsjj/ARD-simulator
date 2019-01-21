@@ -32,6 +32,7 @@ void Boundary::ComputeForcingTerms()
 		bool is_a_left = (x_start_ <= a_->x_end_&&x_end_ >= a_->x_end_);
 		auto left = is_a_left ? a_ : b_;
 		auto right = is_a_left ? b_ : a_;
+#pragma omp parallel for
 		for (int i = y_start_; i < y_end_; i++)
 		{
 			for (int j = z_start_; j < z_end_; j++)
@@ -79,6 +80,7 @@ void Boundary::ComputeForcingTerms()
 		bool is_a_top = (y_start_ <= a_->y_end_ && y_end_ >= a_->y_end_);
 		auto top = is_a_top ? a_ : b_;
 		auto bottom = is_a_top ? b_ : a_;
+#pragma omp parallel for
 		for (int i = x_start_; i < x_end_; i++)
 		{
 			for (int j = z_start_; j < z_end_; j++)
@@ -126,6 +128,7 @@ void Boundary::ComputeForcingTerms()
 		bool is_a_front = (z_start_ <= a_->z_end_ && z_end_ >= a_->z_end_);
 		auto front = is_a_front ? a_ : b_;
 		auto back = is_a_front ? b_ : a_;
+#pragma omp parallel for
 		for (int i = x_start_; i < x_end_; i++)
 		{
 			for (int j = y_start_; j < y_end_; j++)
@@ -192,15 +195,6 @@ void Boundary::ComputeForcingTerms()
 	//				for (int n = 0; n < 3; n++)
 	//				{
 	//					sip1 += coefs[m + 3][n] * front->get_pressure(front_x, front_y, front->depth_ - 3 + n);
-	//					if (i == 30 && j == 30)
-	//					{
-	//						std::cout << front->depth_ - 3 + n << " ";
-	//					}
-	//				}
-	//				if (i == 30 && j == 30)
-	//				{
-	//					std::cout << std::endl;
-
 	//				}
 	//				for (int n = 3; n < 6; n++)
 	//				{
