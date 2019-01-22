@@ -9,16 +9,27 @@ Theory:
 Extended from 2D simulator.
 > https://github.com/thecodeboss/AcousticSimulator
 
-Input file example:
+`assets/*.txt` records the structure of room on x-y plane. Note that this simulator only support 2.5D room model now, that is, z should always be 0 and depth of all partition should be equal.
 
-assets/*.txt
+Input example:
 
+partition:
 ```
 0 0 0 3 3 3  <- partition 0: x, y, z, width, height, depth
 3 0 0 3 3 3  <- partition 1: x, y, z, width, height, depth
 ```
+source:
+```
+1 1 1 <- source 0: x, y, z
+```
 
-## Note
+All the values above are in real world scale (meter).
+
+## Building and running
+
+Use Visual Studio to build. The solution itself is self-contained, so simply building and running in Visual Studio should work. Win32 mode may cause performance issue, please run under x64 mode.
+
+<!-- ## Note
 
 ### FFTW installation note
 
@@ -38,7 +49,7 @@ assets/*.txt
 
 ### style guide
 
-> <https://google.github.io/styleguide/cppguide.html>
+> <https://google.github.io/styleguide/cppguide.html> -->
 
 ## Examples
 
