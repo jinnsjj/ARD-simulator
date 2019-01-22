@@ -300,7 +300,7 @@ Simulation::~Simulation()
 {
 }
 
-void Simulation::Update()
+int Simulation::Update()
 {
 	int time_step = time_step_++;
 	//std::cout << "#" << std::setw(5) << time_step << " : ";
@@ -323,12 +323,17 @@ void Simulation::Update()
 	// Visualization
 	{	
 		SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+		int v_coef = 10;
+		bool render_pml = false;
 		if (look_from_ == 0)	//xy
 		{
 			int pixels_z = sources_[0]->z();
 			for (auto partition : partitions_)
 			{
-				//if (!partition->should_render_) continue;
+				if (!render_pml)
+				{
+					if (!partition->should_render_) continue;
+				}
 				//if (partition->is_z_pml_) continue;
 				if (partition->z_start_ > pixels_z || partition->z_end_ < pixels_z)
 				{
@@ -341,7 +346,7 @@ void Simulation::Update()
 				for (int i = 0; i < partition->height_; i++) {
 					for (int j = 0; j < partition->width_; j++) {
 						double pressure = partition_xy[i*partition->width_ + j];
-						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*3e9)) + 0.5;
+						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*v_coef)) + 0.5;
 						int r, g, b;
 						if (norm >= 0.5)
 						{
@@ -371,7 +376,10 @@ void Simulation::Update()
 			int pixels_x = sources_[0]->x();
 			for (auto partition : partitions_)
 			{
-				//if (!partition->should_render_) continue;
+				if (!render_pml)
+				{
+					if (!partition->should_render_) continue;
+				}
 				//if (partition->is_x_pml_) continue;
 				if (partition->x_start_ > pixels_x || partition->x_end_ < pixels_x)
 				{
@@ -385,7 +393,7 @@ void Simulation::Update()
 				for (int i = 0; i < partition->depth_; i++) {
 					for (int j = 0; j < partition->height_; j++) {
 						double pressure = partition_yz[i*partition->height_ + j];
-						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*3e9)) + 0.5;
+						double norm = 0.5*std::max(-1.0, std::min(1.0, pressure*v_coef)) + 0.5;
 						int r, g, b;
 						if (norm >= 0.5)
 						{
@@ -411,6 +419,8 @@ void Simulation::Update()
 			}
 		}
 	}
+
+	return time_step;
 }
 
 void Simulation::Info()

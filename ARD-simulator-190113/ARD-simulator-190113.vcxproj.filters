@@ -45,6 +45,9 @@
     <ClCompile Include="gaussian_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="recorder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="simulation.h">
@@ -74,31 +77,13 @@
     <ClInclude Include="gaussian_source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="recorder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="partitions-info.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="partitions-info-minus.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="sources-info-minus.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="partitions-info-x-y.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="partitions-info-x.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="partitions-info-y.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="hall.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="hall-sources.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <None Include="..\README.md">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

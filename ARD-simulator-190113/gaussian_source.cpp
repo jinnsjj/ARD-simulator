@@ -16,5 +16,5 @@ GaussianSource::~GaussianSource()
 double GaussianSource::SampleValue(double t)
 {
 	double arg = pow(M_PI * ((2 * (Simulation::c0_*Simulation::dt_ / Simulation::dh_) * t) / 10 - 2.0), 2);
-	return exp(-arg);
+	return 1e9 * exp(-arg);
 }

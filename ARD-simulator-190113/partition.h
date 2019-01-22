@@ -67,5 +67,6 @@ public:
 	friend class Simulation;
 	friend class Tools;
 	friend class PmlPartition;
+	friend class Recorder;
 };
 

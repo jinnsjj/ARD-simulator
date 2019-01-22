@@ -146,6 +146,7 @@
     <ClCompile Include="gaussian_source.cpp" />
     <ClCompile Include="partition.cpp" />
     <ClCompile Include="pml_partition.cpp" />
+    <ClCompile Include="recorder.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="sound_source.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -158,19 +159,13 @@
     <ClInclude Include="gaussian_source.h" />
     <ClInclude Include="partition.h" />
     <ClInclude Include="pml_partition.h" />
+    <ClInclude Include="recorder.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="sound_source.h" />
     <ClInclude Include="tools.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="hall-sources.txt" />
-    <Text Include="hall.txt" />
-    <Text Include="partitions-info-minus.txt" />
-    <Text Include="partitions-info-x.txt" />
-    <Text Include="partitions-info-x-y.txt" />
-    <Text Include="partitions-info-y.txt" />
-    <Text Include="partitions-info.txt" />
-    <Text Include="sources-info-minus.txt" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,10 +20,6 @@ class Simulation
 
 	int size_x_, size_y_, size_z_;
 
-	double duration_;
-
-	int time_step_{ 0 };
-
 	bool ready_;
 	std::vector<Uint32> pixels_;
 
@@ -38,10 +34,15 @@ class Simulation
 	} info_;
 
 public:
+
+	static double duration_;
+
 	static double dh_;
 	static double dt_;
 	static double c0_;
 	static int n_pml_layers_;
+
+	int time_step_{ 0 };
 
 	int look_from_{ 0 };	// 0: visualize xy plane
 							// 1: visualize yz plane
@@ -50,7 +51,7 @@ public:
 	Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std::vector<std::shared_ptr<SoundSource>> &sources);
 	~Simulation();
 
-	void Update();
+	int Update();
 
 	void Info();
 	//FindBoundaries();

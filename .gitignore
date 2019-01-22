@@ -264,3 +264,5 @@ __pycache__/
 !fftw-3.3.5-dll/x64
 !SDL2-2.0.9/lib/x64
 /ARD-simulator-190113/pml_partition - Copy.cpp
+.vscode/
+/ARD-simulator-190113/output/*
