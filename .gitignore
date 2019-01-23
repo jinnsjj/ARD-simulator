@@ -266,3 +266,6 @@ __pycache__/
 /ARD-simulator-190113/pml_partition - Copy.cpp
 .vscode/
 /ARD-simulator-190113/output/*
+!/ARD-simulator-190113/output/README.md
+/ARD-simulator-190113/assets/*.stg
+/ARD-simulator-190113/assets/test/

@@ -1,12 +1,17 @@
 #include "sound_source.h"
 #include "gaussian_source.h"
 #include "simulation.h"
-#include <fstream>
+#include <iostream>
+
 
 SoundSource::SoundSource(int x, int y, int z) :x_(x), y_(y), z_(z)
 {
 	static int id_generator = 0;
 	id_ = id_generator++;
+	std::string filename;
+	filename = "./output/source_" + std::to_string(id_) + ".txt";
+	source_.open(filename, std::ios::out);
+
 }
 
 
@@ -29,6 +34,18 @@ std::vector<std::shared_ptr<SoundSource>> SoundSource::ImportSources(std::string
 		sources.push_back(std::make_shared<GaussianSource>(x / Simulation::dh_, y / Simulation::dh_, z / Simulation::dh_));
 	}
 	file.close();
-
+	for (auto source : sources)
+	{
+		source->RecordSource();
+	}
 	return sources;
+}
+
+void SoundSource::RecordSource()
+{
+	for (int t = 0; t < Simulation::duration_ / Simulation::dt_; t++)
+	{
+		source_ << this->SampleValue(t) << std::endl;
+	}
+	source_.close();
 }

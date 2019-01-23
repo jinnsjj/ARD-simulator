@@ -16,13 +16,15 @@ using namespace std;
 
 bool is_record = true;
 
+double Partition::absorption_ = 1.0;
+
 double Simulation::duration_ = 1.0;
 
-double Simulation::dh_ = 0.05;
-double Simulation::dt_ = 0.625e-4;
+//double Simulation::dh_ = 0.05;
+//double Simulation::dt_ = 0.625e-4;
 
-//double Simulation::dh_ = 0.1;
-//double Simulation::dt_ = 1e-4;
+double Simulation::dh_ = 0.1;
+double Simulation::dt_ = 1.25e-4;
 
 //double Simulation::dh_ = 0.2;
 //double Simulation::dt_ = 2e-4;
@@ -31,21 +33,20 @@ double Simulation::dt_ = 0.625e-4;
 //double Simulation::dt_ = 6.25e-4;
 
 double Simulation::c0_ = 3.435e2;
-int Simulation::n_pml_layers_ = 5;
+int Simulation::n_pml_layers_ = 10;
 
 int main()
 {
-	//std::vector<std::shared_ptr<Partition>> partitions =
-	//	Partition::ImportPartitions("./assets/scene-3.txt");
-	//std::vector<std::shared_ptr<SoundSource>> sources =
-	//	SoundSource::ImportSources("./assets/sources.txt");
+	std::vector<std::shared_ptr<Partition>> partitions;
+	std::vector<std::shared_ptr<SoundSource>> sources;
+	std::vector<std::shared_ptr<Recorder>> recorders;
 
-	std::vector<std::shared_ptr<Partition>> partitions =
-		Partition::ImportPartitions("./assets/hall.txt");
-	std::vector<std::shared_ptr<SoundSource>> sources =
-		SoundSource::ImportSources("./assets/hall-sources.txt");
-	std::vector<std::shared_ptr<Recorder>> recorders =
-		Recorder::ImportRecorders("./assets/hall-recorders.txt");
+	//partitions = Partition::ImportPartitions("./assets/scene-3.txt");
+	//sources = SoundSource::ImportSources("./assets/sources.txt");
+
+	partitions = Partition::ImportPartitions("./assets/hall.txt");
+	sources = SoundSource::ImportSources("./assets/hall-sources.txt");
+	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");
 
 	for (auto record : recorders)
 	{
@@ -90,14 +91,16 @@ int main()
 				record->RecordField(time_step);
 			}
 		}
-		std::cout << "\r[----------------------------------------]" << "[" << time_step + 1 << "/" << Simulation::duration_ / Simulation::dt_ << "]";
-		std::cout << "\r[";
-		double perProgress = 40.0 * (time_step) / (Simulation::duration_ / Simulation::dt_);
-		while (perProgress-- > 0)
+		if (time_step < Simulation::duration_ / Simulation::dt_)
 		{
-			std::cout << "#";
+			std::cout << "\r[----------------------------------------]" << "[" << time_step + 1 << "/" << Simulation::duration_ / Simulation::dt_ << "]";
+			std::cout << "\r[";
+			double perProgress = 40.0 * (time_step) / (Simulation::duration_ / Simulation::dt_);
+			while (perProgress-- > 0)
+			{
+				std::cout << "#";
+			}
 		}
-
 		if (simulation->ready())
 		{
 			SDL_UpdateTexture(texture, nullptr,

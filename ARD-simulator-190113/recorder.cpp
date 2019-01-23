@@ -11,12 +11,15 @@ Recorder::Recorder(int x, int y, int z, int total_steps)
 	std::string filename;
 	filename = "./output/out_" + std::to_string(id_) + ".txt";
 	output_.open(filename, std::ios::out);
+	filename = "./output/response_" + std::to_string(id_) + ".txt";
+	response_.open(filename, std::ios::out);
 }
 
 
 Recorder::~Recorder()
 {
 	output_.close();
+	response_.close();
 }
 
 void Recorder::FindPartition(std::vector<std::shared_ptr<Partition>> partitions)
@@ -49,7 +52,15 @@ void Recorder::RecordField(int time_step)
 		}
 		output_ << std::endl;
 	}
+	response_ << part_->get_pressure(x_, y_, z_) << std::endl;
+}
 
+void Recorder::RecordResponse(int time_step)
+{
+	if (time_step <= total_steps_)
+	{
+		response_ << part_->get_pressure(x_, y_, z_) << std::endl;
+	}
 }
 
 std::vector<std::shared_ptr<Recorder>> Recorder::ImportRecorders(std::string path)

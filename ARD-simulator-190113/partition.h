@@ -17,7 +17,7 @@ protected:
 	int y_start_, y_end_;
 	int z_start_, z_end_;
 	int width_, height_, depth_;
-	double absorption_{ 1.0 };
+	static double absorption_;
 	struct Info
 	{
 		int id;

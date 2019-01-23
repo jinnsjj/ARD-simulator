@@ -4,6 +4,7 @@ A 3D sound propagation simulator.
 
 Theory:
 > Raghuvanshi, Nikunj, Rahul Narain, and Ming C. Lin. "Efficient and accurate sound propagation using adaptive rectangular decomposition." IEEE Transactions on Visualization and Computer Graphics 15.5 (2009): 789-801.
+>
 > Grote, Marcus J., and Imbo Sim. "Efficient PML for the wave equation." arXiv preprint arXiv:1001.0319 (2010).
 
 Extended from 2D simulator.
@@ -17,13 +18,23 @@ partition:
 ```
 0 0 0 3 3 3  <- partition 0: x, y, z, width, height, depth
 3 0 0 3 3 3  <- partition 1: x, y, z, width, height, depth
+
 ```
 source:
 ```
 1 1 1 <- source 0: x, y, z
+
+```
+
+recorder:
+```
+1 1 1 <- recorder 0: x, y, z
+
 ```
 
 All the values above are in real world scale (meter).
+
+**Don't forget to all an extra blank line at the end of file.**
 
 ## Building and running
 
