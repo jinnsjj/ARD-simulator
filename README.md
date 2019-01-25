@@ -34,7 +34,7 @@ recorder:
 
 All the values above are in real world scale (meter).
 
-**Don't forget to all an extra blank line at the end of file.**
+**Don't forget to add an extra blank line at the end of file.**
 
 ## Building and running
 
@@ -64,6 +64,36 @@ Use Visual Studio to build. The solution itself is self-contained, so simply bui
 
 ## Examples
 
+Scene 1:
+
+partition:
+```
+0 0 0 5 5 5
+
+```
 ![](ARD-simulator-190113/assets/scene-1.gif)
+
+Scene 2:
+
+partition:
+```
+0 0 0 2 2 2
+1 2 0 1 1 2
+2 1 0 1 3 2
+3 2 0 1 2 2
+
+```
 ![](ARD-simulator-190113/assets/scene-2.gif)
+
+Scene 2:
+
+partition:
+```
+0 0 0 3 3 2
+0 3 0 2 1 2
+3 0 0 1 2 2
+4 0 0 1 1 2
+0 4 0 1 1 2
+
+```
 ![](ARD-simulator-190113/assets/scene-3.gif)

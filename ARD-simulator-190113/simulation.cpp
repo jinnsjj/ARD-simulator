@@ -321,7 +321,7 @@ int Simulation::Update()
 	//std::cout << std::endl;
 
 	// Visualization
-	{	
+	{
 		SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
 		int v_coef = 10;
 		bool render_pml = false;
@@ -441,13 +441,14 @@ void Simulation::Info()
 	std::cout << "############################################################" << std::endl;
 	for (auto p : partitions_)
 	{
-		p->Info();
+		if (p->info_.type == "DCT")
+			p->Info();
 	}
 	std::cout << "------------------------------------------------------------" << std::endl;
-	for (auto b : boundaries_)
-	{
-		b->Info();
-	}
+	//for (auto b : boundaries_)
+	//{
+	//	b->Info();
+	//}
 	std::cout << "------------------------------------------------------------" << std::endl;
 	for (auto s : sources_)
 	{

@@ -16,7 +16,7 @@ using namespace std;
 
 bool is_record = true;
 
-double Partition::absorption_ = 1.0;
+double Partition::absorption_ = 0.8;
 
 double Simulation::duration_ = 1.0;
 
@@ -33,20 +33,22 @@ double Simulation::dt_ = 1.25e-4;
 //double Simulation::dt_ = 6.25e-4;
 
 double Simulation::c0_ = 3.435e2;
-int Simulation::n_pml_layers_ = 10;
+int Simulation::n_pml_layers_ = 5;
 
 int main()
 {
+	double time1 = omp_get_wtime();
+
 	std::vector<std::shared_ptr<Partition>> partitions;
 	std::vector<std::shared_ptr<SoundSource>> sources;
 	std::vector<std::shared_ptr<Recorder>> recorders;
 
-	//partitions = Partition::ImportPartitions("./assets/scene-3.txt");
-	//sources = SoundSource::ImportSources("./assets/sources.txt");
+	partitions = Partition::ImportPartitions("./assets/scene-2.txt");
+	sources = SoundSource::ImportSources("./assets/sources.txt");
 
-	partitions = Partition::ImportPartitions("./assets/hall.txt");
-	sources = SoundSource::ImportSources("./assets/hall-sources.txt");
-	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");
+	//partitions = Partition::ImportPartitions("./assets/hall.txt");
+	//sources = SoundSource::ImportSources("./assets/hall-sources.txt");
+	//recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");
 
 	for (auto record : recorders)
 	{
@@ -69,8 +71,14 @@ int main()
 		simulation->size_x(), simulation->size_y());
 
 	bool quit = false;
-	int time_step;
-	while (!quit)
+	int time_step = 0;
+	int total_time_steps = Simulation::duration_ / Simulation::dt_;
+
+	double time2 = omp_get_wtime();
+	std::cout << "Initialization finished. (" << time2 - time1 << " s)" << std::endl;
+	std::cout << "############################################################" << std::endl;
+
+	while (!quit && time_step < total_time_steps)
 	{
 		while (SDL_PollEvent(&event)) {
 			switch (event.type)
@@ -91,16 +99,15 @@ int main()
 				record->RecordField(time_step);
 			}
 		}
-		if (time_step < Simulation::duration_ / Simulation::dt_)
+
+		std::cout << "\r[----------------------------------------]" << "[" << time_step << "/" << total_time_steps << "]";
+		std::cout << "\r[";
+		double perProgress = 40.0 * (time_step) / total_time_steps;
+		while (perProgress-- > 0)
 		{
-			std::cout << "\r[----------------------------------------]" << "[" << time_step + 1 << "/" << Simulation::duration_ / Simulation::dt_ << "]";
-			std::cout << "\r[";
-			double perProgress = 40.0 * (time_step) / (Simulation::duration_ / Simulation::dt_);
-			while (perProgress-- > 0)
-			{
-				std::cout << "#";
-			}
+			std::cout << "#";
 		}
+
 		if (simulation->ready())
 		{
 			SDL_UpdateTexture(texture, nullptr,
@@ -116,6 +123,11 @@ int main()
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+
+	double time3 = omp_get_wtime();
+	std::cout << std::endl << "Simulation finished. (" << time3 - time1 << " s)" << std::endl;
+	std::cout << "############################################################" << std::endl;
+
 	return 0;
 }
 

@@ -38,7 +38,7 @@ void Recorder::FindPartition(std::vector<std::shared_ptr<Partition>> partitions)
 
 void Recorder::RecordField(int time_step)
 {
-	if (time_step <= total_steps_)
+	if (time_step < total_steps_)
 	{
 		for (int i = -5; i < 5; i++)
 		{
@@ -51,8 +51,8 @@ void Recorder::RecordField(int time_step)
 			}
 		}
 		output_ << std::endl;
+		response_ << part_->get_pressure(x_, y_, z_) << std::endl;
 	}
-	response_ << part_->get_pressure(x_, y_, z_) << std::endl;
 }
 
 void Recorder::RecordResponse(int time_step)
