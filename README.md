@@ -98,10 +98,13 @@ partition:
 ```
 ![scene-3.gif](https://i.loli.net/2019/01/25/5c4b0622c3267.gif)
 
-## Simulation results of hall
+## Simulation result of a hall
 
-Original:
+Shape:
+![simulation-hall-b.png](https://i.loli.net/2019/01/25/5c4b1b690ae34.png)
+
+Original sound:
 <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/564431019&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
 
-Processed:
+Processed sound:
 <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/564431031&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
