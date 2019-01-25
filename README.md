@@ -71,7 +71,7 @@ partition:
 0 0 0 5 5 5
 
 ```
-![](ARD-simulator-190113/assets/scene-1.gif)
+![scene-1.gif](https://i.loli.net/2019/01/25/5c4b06204451f.gif)
 
 Scene 2:
 
@@ -83,7 +83,7 @@ partition:
 3 2 0 1 2 2
 
 ```
-![](ARD-simulator-190113/assets/scene-2.gif)
+![scene-2.gif](https://i.loli.net/2019/01/25/5c4b06215ce95.gif)
 
 Scene 2:
 
@@ -96,4 +96,4 @@ partition:
 0 4 0 1 1 2
 
 ```
-![](ARD-simulator-190113/assets/scene-3.gif)
+![scene-3.gif](https://i.loli.net/2019/01/25/5c4b0622c3267.gif)
