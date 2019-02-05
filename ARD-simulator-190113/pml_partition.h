@@ -20,6 +20,10 @@ class PmlPartition : public Partition
 	double* phi_z_;
 	double* phi_z_new_;
 	double* force_;
+
+	double* zetax_;
+	double* zetay_;
+	double* zetaz_;
 	
 	// PML damping values
 	double kxMin_{ 0.1 };

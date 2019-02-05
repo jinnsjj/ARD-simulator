@@ -51,6 +51,42 @@ PmlPartition::PmlPartition(std::shared_ptr<Partition> neighbor_part, PmlType typ
 	memset((void *)phi_z_, 0, size * sizeof(double));
 	memset((void *)phi_z_new_, 0, size * sizeof(double));
 	memset((void *)force_, 0, size * sizeof(double));
+
+	zetax_ = (double*)calloc(size, sizeof(double));
+	zetay_ = (double*)calloc(size, sizeof(double));
+	zetaz_ = (double*)calloc(size, sizeof(double));
+	for (int k = 0; k < depth_; k++)
+	{
+		for (int j = 0; j < height_; j++)
+		{
+			for (int i = 0; i < width_; i++)
+			{
+				switch (type)
+				{
+				case PmlPartition::P_BACK:
+					zetaz_[GetIndex(i,j,k)] = zeta_ * ((k + 1) / thickness_ * dh_ - sin(2 * M_PI * (k + 1) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				case PmlPartition::P_FRONT:
+					zetaz_[GetIndex(i, j, k)] = zeta_ * ((depth_ - k) / thickness_ * dh_ - sin(2 * M_PI * (depth_ - k) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				case PmlPartition::P_BOTTOM:
+					zetay_[GetIndex(i, j, k)] = zeta_ * ((j + 1) / thickness_ * dh_ - sin(2 * M_PI * (j + 1) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				case PmlPartition::P_TOP:
+					zetay_[GetIndex(i, j, k)] = zeta_ * ((height_ - j) / thickness_ * dh_ - sin(2 * M_PI * (height_ - j) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				case PmlPartition::P_RIGHT:
+					zetax_[GetIndex(i, j, k)] = zeta_ * ((i + 1) / thickness_ * dh_ - sin(2 * M_PI * (i + 1) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				case PmlPartition::P_LEFT:
+					zetax_[GetIndex(i, j, k)] = zeta_ * ((width_ - i) / thickness_ * dh_ - sin(2 * M_PI * (width_ - i) * dh_ / thickness_) / 2 / M_PI);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
 }
 
 
@@ -66,6 +102,9 @@ PmlPartition::~PmlPartition()
 	free(phi_z_);
 	free(phi_z_new_);
 	free(force_);
+	free(zetax_);
+	free(zetay_);
+	free(zetaz_);
 }
 
 void PmlPartition::Update()
@@ -90,48 +129,48 @@ void PmlPartition::Update()
 #pragma omp parallel for
 	for (int k = 0; k < depth; k++)
 	{
-		double zetax = 0.0;
-		double zetay = 0.0;
-		double zetaz = 0.0;
-		switch (type)
-		{
-		case PmlPartition::P_BACK:
-			zetaz = zeta * ((k + 1) / thickness * dh - sin(2 * M_PI * (k + 1) * dh / thickness) / 2 / M_PI);
-			break;
-		case PmlPartition::P_FRONT:
-			zetaz = zeta * ((depth - k) / thickness * dh - sin(2 * M_PI * (depth - k) * dh / thickness) / 2 / M_PI);
-			break;
-		default:
-			break;
-		}
-#pragma omp parallel for
+		//double zetax = 0.0;
+		//double zetay = 0.0;
+		//double zetaz = 0.0;
+		//switch (type)
+		//{
+		//case PmlPartition::P_BACK:
+		//	zetaz = zeta * ((k + 1) / thickness * dh - sin(2 * M_PI * (k + 1) * dh / thickness) / 2 / M_PI);
+		//	break;
+		//case PmlPartition::P_FRONT:
+		//	zetaz = zeta * ((depth - k) / thickness * dh - sin(2 * M_PI * (depth - k) * dh / thickness) / 2 / M_PI);
+		//	break;
+		//default:
+		//	break;
+		//}
+//#pragma omp parallel for
 		for (int j = 0; j < height; j++)
 		{
-			switch (type)
-			{
-			case PmlPartition::P_BOTTOM:
-				zetay = zeta * ((j + 1) / thickness * dh - sin(2 * M_PI * (j + 1) * dh / thickness) / 2 / M_PI);
-				break;
-			case PmlPartition::P_TOP:
-				zetay = zeta * ((height - j) / thickness * dh - sin(2 * M_PI * (height - j) * dh / thickness) / 2 / M_PI);
-				break;
-			default:
-				break;
-			}
-#pragma omp parallel for
+			//switch (type)
+			//{
+			//case PmlPartition::P_BOTTOM:
+			//	zetay = zeta * ((j + 1) / thickness * dh - sin(2 * M_PI * (j + 1) * dh / thickness) / 2 / M_PI);
+			//	break;
+			//case PmlPartition::P_TOP:
+			//	zetay = zeta * ((height - j) / thickness * dh - sin(2 * M_PI * (height - j) * dh / thickness) / 2 / M_PI);
+			//	break;
+			//default:
+			//	break;
+			//}
+//#pragma omp parallel for
 			for (int i = 0; i < width; i++)
 			{
-				switch (type)
-				{
-				case PmlPartition::P_RIGHT:
-					zetax = zeta * ((i + 1) / thickness * dh - sin(2 * M_PI * (i + 1) * dh / thickness) / 2 / M_PI);
-					break;
-				case PmlPartition::P_LEFT:
-					zetax = zeta * ((width - i) / thickness * dh - sin(2 * M_PI * (width - i) * dh / thickness) / 2 / M_PI);
-					break;
-				default:
-					break;
-				}
+				//switch (type)
+				//{
+				//case PmlPartition::P_RIGHT:
+				//	zetax = zeta * ((i + 1) / thickness * dh - sin(2 * M_PI * (i + 1) * dh / thickness) / 2 / M_PI);
+				//	break;
+				//case PmlPartition::P_LEFT:
+				//	zetax = zeta * ((width - i) / thickness * dh - sin(2 * M_PI * (width - i) * dh / thickness) / 2 / M_PI);
+				//	break;
+				//default:
+				//	break;
+				//}
 
 				double coefs[] = { 2.0, -27.0, 270.0, -490.0, 270.0, -27.0, 2.0 };
 				double d2udx2 = 0.0;
@@ -180,8 +219,8 @@ void PmlPartition::Update()
 				double term1 = 2 * p_[GetIndex(i, j, k)];
 				double term2 = -p_old_[GetIndex(i, j, k)];
 				double term3 = c0 * c0 * (d2udx2 + d2udy2 + d2udz2);	// c^2*(d2udx2+d2udy2+d2udz2)
-				double term4 = -(zetax + zetay + zetaz) * (p_[GetIndex(i, j, k)] - p_old_[GetIndex(i, j, k)]) / dt;
-				double term5 = -(zetax * zetay + zetay * zetaz + zetax * zetaz) * p_[GetIndex(i, j, k)];
+				double term4 = -(zetax_[GetIndex(i, j, k)] + zetay_[GetIndex(i, j, k)] + zetaz_[GetIndex(i, j, k)]) * (p_[GetIndex(i, j, k)] - p_old_[GetIndex(i, j, k)]) / dt;
+				double term5 = -(zetax_[GetIndex(i, j, k)] * zetay_[GetIndex(i, j, k)] + zetay_[GetIndex(i, j, k)] * zetaz_[GetIndex(i, j, k)] + zetax_[GetIndex(i, j, k)] * zetaz_[GetIndex(i, j, k)]) * p_[GetIndex(i, j, k)];
 
 				double fourthCoefs[] = { 1.0, -8.0, 0.0, 8.0, -1.0 };
 				double dphidx = 0.0;
@@ -252,9 +291,9 @@ void PmlPartition::Update()
 				dudx /= (12.0 * dh);
 				dudy /= (12.0 * dh);
 				dudz /= (12.0 * dh);
-				phi_x_new_[GetIndex(i, j, k)] = phi_x_[GetIndex(i, j, k)] - dt * zetax * phi_x_[GetIndex(i, j, k)] + dt * (zetay + zetaz - zetax) * dudx;
-				phi_y_new_[GetIndex(i, j, k)] = phi_y_[GetIndex(i, j, k)] - dt * zetay * phi_y_[GetIndex(i, j, k)] + dt * (zetax + zetaz - zetay) * dudy;
-				phi_z_new_[GetIndex(i, j, k)] = phi_z_[GetIndex(i, j, k)] - dt * zetaz * phi_z_[GetIndex(i, j, k)] + dt * (zetax + zetay - zetaz) * dudz;
+				phi_x_new_[GetIndex(i, j, k)] = phi_x_[GetIndex(i, j, k)] - dt * zetax_[GetIndex(i, j, k)] * phi_x_[GetIndex(i, j, k)] + dt * (zetay_[GetIndex(i, j, k)] + zetaz_[GetIndex(i, j, k)] - zetax_[GetIndex(i, j, k)]) * dudx;
+				phi_y_new_[GetIndex(i, j, k)] = phi_y_[GetIndex(i, j, k)] - dt * zetay_[GetIndex(i, j, k)] * phi_y_[GetIndex(i, j, k)] + dt * (zetax_[GetIndex(i, j, k)] + zetaz_[GetIndex(i, j, k)] - zetay_[GetIndex(i, j, k)]) * dudy;
+				phi_z_new_[GetIndex(i, j, k)] = phi_z_[GetIndex(i, j, k)] - dt * zetaz_[GetIndex(i, j, k)] * phi_z_[GetIndex(i, j, k)] + dt * (zetax_[GetIndex(i, j, k)] + zetay_[GetIndex(i, j, k)] - zetaz_[GetIndex(i, j, k)]) * dudz;
 			}
 		}
 	}

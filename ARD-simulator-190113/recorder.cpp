@@ -9,9 +9,10 @@ Recorder::Recorder(int x, int y, int z, int total_steps)
 	static int id_generator = 0;
 	id_ = id_generator++;
 	std::string filename;
-	filename = "./output/out_" + std::to_string(id_) + ".txt";
+	std::string dir_name = std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
+	filename = "./output/" + dir_name + "/out_" + std::to_string(id_) + ".txt";
 	output_.open(filename, std::ios::out);
-	filename = "./output/response_" + std::to_string(id_) + ".txt";
+	filename = "./output/" + dir_name + "/response_" + std::to_string(id_) + ".txt";
 	response_.open(filename, std::ios::out);
 }
 

@@ -17,7 +17,6 @@ protected:
 	int y_start_, y_end_;
 	int z_start_, z_end_;
 	int width_, height_, depth_;
-	static double absorption_;
 	struct Info
 	{
 		int id;
@@ -41,6 +40,7 @@ protected:
 	bool is_z_pml_{ false };
 	
 public:
+	static double absorption_;
 
 	Partition(int xs, int ys, int zs, int w, int h, int d);
 	~Partition();

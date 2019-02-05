@@ -52,7 +52,7 @@ void DctPartition::Update()
 			for (int k = 0; k < width_; k++)
 			{
 				int idx = i * height_ * width_ + j * width_ + k;
-				next_modes_[idx] = 1 * (2.0 * pressure_.modes_[idx] * cwt_[idx] - prev_modes_[idx] + (2.0 * force_.modes_[idx] / w2_[idx]) * (1.0 - cwt_[idx]));
+				next_modes_[idx] = 0.999 * (2.0 * pressure_.modes_[idx] * cwt_[idx] - prev_modes_[idx] + (2.0 * force_.modes_[idx] / w2_[idx]) * (1.0 - cwt_[idx]));
 			}
 		}
 	}
