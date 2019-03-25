@@ -28,11 +28,8 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 				boundaries_.push_back(boundary);
 				part_a->AddBoundary(boundary);
 				part_b->AddBoundary(boundary);
-				//Tools::Visualize2dVector(part_b->top_free_borders_);
 			}
 		}
-		//Tools::Visualize2dVector(part_a->bottom_free_borders_);
-
 	}
 
 	// Add sources to corresponding partition

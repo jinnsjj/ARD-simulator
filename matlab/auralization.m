@@ -1,11 +1,12 @@
 clear
 
-% dh = 0.05;
-dh = 0.1;
+dh = 0.05;
+% dh = 0.1;
 
-absorp = 1.0;
+% absorp = 1.0;
 % absorp = 0.8;
-% absorp = 0.5;
+absorp = 0.5;
+% absorp = 0.2;
 
 switch dh
     case 0.05
@@ -34,9 +35,14 @@ rir = normalizeIR(rir);
 
 figure
 subplot(211)
-plot(rir)
-subplot(212)
 plot(rr)
+title('Room response');
+subplot(212)
+plot(rir)
+title('Room impluse response');
+% subplot(313)
+% figure
+% t60(rir,sr,1);
 
 [file,path] = uigetfile({'*.mp3';'*.wav'});
 [filepath,name,ext] = fileparts(file);

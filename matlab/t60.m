@@ -91,7 +91,7 @@ if flag == 1
 		y = y(1:length(xtime));
 	end
 
-	figure;
+% 	figure;
 	plot(xtime,y,'b-','LineWidth',1.5);
 	title('Integrated Impulse Decay Curve');
 	ylim([-70 0]);

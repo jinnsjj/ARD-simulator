@@ -1,6 +1,10 @@
-//#include <cstdio>
-#include <iostream>
+/* ARD simulator
+ * 
+ * This is the entrance of the program. 
+ * SDL is used as the interface to show the wave propagation.
+ */
 
+#include <iostream>
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <omp.h>
@@ -18,15 +22,16 @@ using namespace std;
 
 bool is_record = true;
 
-double Partition::absorption_ = 1.0;
+/* Set constant parameters. */
 
-double Simulation::duration_ = 1;
+double Partition::absorption_ = 0.5;	// Absorption coefficients of the boundaries.
+double Simulation::duration_ = 2;		// Duration of the whole simulation (seconds).
 
-//double Simulation::dh_ = 0.05;
-//double Simulation::dt_ = 0.625e-4;
+double Simulation::dh_ = 0.05;			// Space sampling rate.
+double Simulation::dt_ = 0.625e-4;		// Time sampling rate.
 
-double Simulation::dh_ = 0.1;
-double Simulation::dt_ = 1.25e-4;
+//double Simulation::dh_ = 0.1;
+//double Simulation::dt_ = 1.25e-4;
 
 //double Simulation::dh_ = 0.2;
 //double Simulation::dt_ = 2e-4;
@@ -34,26 +39,27 @@ double Simulation::dt_ = 1.25e-4;
 //double Simulation::dh_ = 0.5;
 //double Simulation::dt_ = 6.25e-4;
 
-double Simulation::c0_ = 3.435e2;
-int Simulation::n_pml_layers_ = 5;
+double Simulation::c0_ = 3.435e2;		// Speed of sound
+int Simulation::n_pml_layers_ = 5;		// Number of pml layers.
 
 int main()
 {
-	double time1 = omp_get_wtime();
+	double time1 = omp_get_wtime();		// Record the begining time. Used for showing the cosuming time.
 
 	std::string dir_name = "./output/" + std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
-	CreateDirectory(dir_name.c_str(), NULL);
+	CreateDirectory(dir_name.c_str(), NULL);	// Prepare for the output folder.
+												// ! Without this and the corresponding folder does not exist, the program will not write the output data.
 
 	std::vector<std::shared_ptr<Partition>> partitions;
 	std::vector<std::shared_ptr<SoundSource>> sources;
 	std::vector<std::shared_ptr<Recorder>> recorders;
 
+	partitions = Partition::ImportPartitions("./assets/hall.txt");			// Read partition properties from file.
+	sources = SoundSource::ImportSources("./assets/hall-sources.txt");		// Read source properties from file.
+	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");	// Read recorder properties from file. Recorder is not mandatory. 
+
 	//partitions = Partition::ImportPartitions("./assets/scene-2.txt");
 	//sources = SoundSource::ImportSources("./assets/sources.txt");
-
-	partitions = Partition::ImportPartitions("./assets/hall.txt");
-	sources = SoundSource::ImportSources("./assets/hall-sources.txt");
-	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");
 
 	//partitions = Partition::ImportPartitions("./assets/classroom.txt");
 	//sources = SoundSource::ImportSources("./assets/classroom-sources.txt");
@@ -61,13 +67,17 @@ int main()
 
 	for (auto record : recorders)
 	{
-		record->FindPartition(partitions);
+		record->FindPartition(partitions);		// Assign recorders to the corresponding partition.
 	}
 
-	auto simulation = std::make_shared<Simulation>(partitions, sources);
-	simulation->Info();
-	//simulation->look_from_ = 1;
+	auto simulation = std::make_shared<Simulation>(partitions, sources);	// Initialize the simulation.
+	simulation->Info();														// Show basic info of the simulation
+	//simulation->look_from_ = 1;											// FOR DEBUG: show field from another view direction.
 
+	/* Initialize SDL window
+	 * simulation_rect: show field.
+	 * message_rect: show instant progress during the simulation
+	 */
 	SDL_Event event;
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
@@ -88,17 +98,16 @@ int main()
 	TTF_Init();
 	TTF_Font* Sans = TTF_OpenFont("font/SourceSansPro-Regular.ttf", 64); //this opens a font style and sets a size
 	SDL_Color White = { 255, 255, 255 };  // this is the color in rgb format, maxing out all would give you the color white, and it will be your text's color
-
-	SDL_Rect Message_rect; //create a rect
-	Message_rect.x = 0;  //controls the rect's x coordinate 
-	Message_rect.y = resolution_y; // controls the rect's y coordinte
-	Message_rect.w = 100; // controls the width of the rect
-	Message_rect.h = 20; // controls the height of the rect
-	SDL_Rect Message_rect2; //create a rect
-	Message_rect2.x = resolution_x - 100;  //controls the rect's x coordinate 
-	Message_rect2.y = resolution_y; // controls the rect's y coordinte
-	Message_rect2.w = 100; // controls the width of the rect
-	Message_rect2.h = 20; // controls the height of the rect
+	SDL_Rect Message_rect;
+	Message_rect.x = 0;
+	Message_rect.y = resolution_y;
+	Message_rect.w = 100;
+	Message_rect.h = 20;
+	SDL_Rect Message_rect2;
+	Message_rect2.x = resolution_x - 100;
+	Message_rect2.y = resolution_y;
+	Message_rect2.w = 100;
+	Message_rect2.h = 20;
 
 	bool quit = false;
 	int time_step = 0;
@@ -119,29 +128,20 @@ int main()
 				break;
 			}
 		}
-		//double start = omp_get_wtime();
-		time_step = simulation->Update();
-		//double end = omp_get_wtime();
-		//std::cout << end - start << std::endl;
+
+		time_step = simulation->Update();		// ! Updating sound field.
+
 		if (is_record)
 		{
 			for (auto record : recorders)
 			{
-				record->RecordField(time_step);
+				record->RecordField(time_step);	// Record sound field.
 			}
 		}
 
 		message = std::to_string(time_step) + '/' + std::to_string(total_time_steps);
-		SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, message.c_str(), White);	// as TTF_RenderText_Solid could only be used on SDL_Surface then you haurfavesve to create the surface first
+		SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, message.c_str(), White);
 		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-
-		//std::cout << "\r[----------------------------------------]" << "[" << time_step << "/" << total_time_steps << "]";
-		//std::cout << "\r[";
-		//double perProgress = 40.0 * (time_step) / total_time_steps;
-		//while (perProgress-- > 0)
-		//{
-		//	std::cout << "#";
-		//}
 
 		if (simulation->ready())
 		{
