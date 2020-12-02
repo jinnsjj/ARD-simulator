@@ -123,7 +123,7 @@ void Boundary::ComputeForcingTerms()
 			}
 		}
 	}
-	else if (type_ = Z_BOUNDARY)
+	else if (type_ == Z_BOUNDARY)
 	{
 		bool is_a_front = (z_start_ <= a_->z_end_ && z_end_ >= a_->z_end_);
 		auto front = is_a_front ? a_ : b_;
